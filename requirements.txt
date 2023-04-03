@@ -18,3 +18,4 @@ torchdiffeq==0.2.3
 safetensors==0.3.0
 httpcore<=0.15
 diffusers
+gradio
