@@ -1,7 +1,6 @@
 # large_file
 model/
-BLIP/pth
-
+blip/pth
 
 # gradio
 flagged/
