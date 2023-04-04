@@ -18,9 +18,9 @@ def run_app():
                 inputs=gr.Image(type="pil"),
                 outputs=gr.Image(type="pil").style(width=256, height=384),
                 examples=["resource/coloring/sample (1).png", "resource/coloring/sample (2).png"])
-    app2 = gr.Interface(fn=img_gen.img2img, 
+    app2 = gr.Interface(fn=img_gen.img2img_clip, 
                 inputs=gr.Image(type="pil"),
-                outputs=gr.Image(type="pil").style(width=512, height=512),
+                outputs=["text", gr.Image(type="pil").style(width=512, height=512)],
                 examples=["resource/coloring/sample (11).png"])
     app3 = gr.Interface(fn=img_gen.text2img, 
                         inputs=gr.Image(type="pil"), 

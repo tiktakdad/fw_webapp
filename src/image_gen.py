@@ -1,6 +1,6 @@
 
 import torch
-from diffusers import StableDiffusionImg2ImgPipeline, DPMSolverMultistepScheduler
+from diffusers import StableDiffusionImg2ImgPipeline, StableDiffusionPipeline, DPMSolverMultistepScheduler
 from BLIP.BLIP_infer import BlipInfer
 from .google_translator import GoogleTranslator
 from .open_ai import OpenAIAPI
@@ -10,7 +10,7 @@ import numpy as np
 import cv2
 import re
 import easyocr
-reader = easyocr.Reader(['ko','en'], gpu=True) # need to run only once to load model into memory 
+
 
 
 from diffusers import (
@@ -47,13 +47,20 @@ class ImageGen:
         self.blip_infer = BlipInfer()
         self.translator = GoogleTranslator()
         self.openai_api = OpenAIAPI()
+        self.reader = easyocr.Reader(['ko','en'], gpu=True) # need to run only once to load model into memory 
        
 
     def load_model(self, device, model_id_or_path):
-        self.pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path)
-        self.pipe.safety_checker = lambda images, clip_input: (images, False)
-        #self.pipe.scheduler = DPMSolverMultistepScheduler.from_config(scheduler.config, use_karras_sigmas=True)
-        self.pipe = self.pipe.to(device)
+        # img2img
+        self.i2i_pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
+        self.i2i_pipe.safety_checker = lambda images, clip_input: (images, False)
+        #self.i2i_pipe.scheduler = DPMSolverMultistepScheduler.from_config(scheduler.config, use_karras_sigmas=True)
+        self.i2i_pipe = self.i2i_pipe.to(device)
+        # text2img
+        self.t2i_pipe = StableDiffusionPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
+        self.t2i_pipe.safety_checker = lambda images, clip_input: (images, False)
+        #self.i2i_pipe.scheduler = DPMSolverMultistepScheduler.from_config(scheduler.config, use_karras_sigmas=True)
+        self.t2i_pipe = self.t2i_pipe.to(device)
 
     def img2img(self, img):
         init_image = img
@@ -61,7 +68,7 @@ class ImageGen:
         generator = torch.manual_seed(3306892559)
         prompt = "masterpiece, best quality, ultra-detailed, illustration,  1princess"
         negative_prompt = "worst quality, low quality, realistic, text, title, logo, signature, abs, muscular, rib, depth of field, bokeh, blurry, greyscale, monochrome"
-        images = self.pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=generator, num_inference_steps=40, guidance_scale=7).images
+        images = self.i2i_pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=generator, num_inference_steps=40, guidance_scale=7).images
         '''
         upscaled_image = upscaler(
         prompt=prompt,
@@ -75,6 +82,21 @@ class ImageGen:
         '''
         return images[0]
     
+    def img2img_clip(self, img):
+
+        init_image = img
+        init_image = init_image.resize((512, 512))
+        caption = self.blip_infer.inference(init_image)
+        generator = torch.manual_seed(3306892559)
+
+        prompt = "masterpiece, best quality, ultra-detailed," + caption + ", illustration"
+        negative_prompt = "worst quality, low quality, realistic, text, title, logo, signature, abs, muscular, rib, depth of field, bokeh, blurry, greyscale, monochrome"
+        print("eval")
+        print("prompt: " + prompt)
+        print("negative_prompt: " + negative_prompt)
+        images = self.i2i_pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=generator, num_inference_steps=40, guidance_scale=7).images
+
+        return caption, images[0]
     
     def ocr(self, split_imgs):
         # TODO: ocr from split_imgs to result
@@ -84,7 +106,7 @@ class ImageGen:
         for image in split_imgs:
             numpy_image=np.array(image)
             opencv_image=cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
-            result, score = reader.readtext(opencv_image)[0][1], reader.readtext(opencv_image)[0][2]
+            result, score = self.reader.readtext(opencv_image)[0][1], self.reader.readtext(opencv_image)[0][2]
             if score < 0.4:
                 # str_list.append(' ')
                 str_list += ' '
@@ -116,6 +138,7 @@ class ImageGen:
         
         #im1 = im.crop((left, top, right, bottom))
         result_ocr = self.ocr(split_imgs)
+        print(result_ocr)
         result_translation = self.translator.translate(result_ocr)
         #result_prompts_list = self.openai_api.run(result_translation)
         #sample = "I wore my rain boots to school today, and I thought I'd wear them again after school, but it stopped raining, so it wasn't so good. I hope it rains tomorrow."
@@ -127,6 +150,16 @@ class ImageGen:
         for result_prompt in result_prompt_list:
             prompt = "masterpiece, best quality, ultra-detailed," + result_prompt + ", illustration"
             negative_prompt = "worst quality, low quality, realistic, text, title, logo, signature, abs, muscular, rib, depth of field, bokeh, blurry, greyscale, monochrome"
-            images = self.pipe(prompt=prompt,negative_prompt=negative_prompt, generator=generator, num_inference_steps=40, guidance_scale=7).images
+            images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=generator, num_inference_steps=40, guidance_scale=7).images
             result_image_list.append(images[0])
-        return result_prompt_list, result_image_list
+            break
+        return result_prompt_list[0], result_image_list[0]
+    
+if __name__ == "__main__":
+    img_gen = ImageGen()
+    from PIL import Image
+    im = Image.open("resource/diary/sample.jpg") 
+    result_prompt_list, result_image_list = img_gen.text2img(im)
+    for i, img in enumerate(result_image_list):
+         img.save("output/{}.jpg".format(i))
+    
