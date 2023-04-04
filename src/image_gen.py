@@ -1,9 +1,21 @@
 
 import torch
 from diffusers import StableDiffusionImg2ImgPipeline, DPMSolverMultistepScheduler
+<<<<<<< HEAD
 from BLIP.BLIP_infer import BlipInfer
 from .google_translator import GoogleTranslator
 from .open_ai import OpenAIAPI
+=======
+#from BLIP.BLIP_infer import inference_BLIP
+
+# OCR
+import numpy as np
+import cv2
+import re
+import easyocr
+reader = easyocr.Reader(['ko','en'], gpu=True) # need to run only once to load model into memory 
+
+>>>>>>> 31e073c9f9eeada62d49226f4cf3efd749692432
 
 from diffusers import (
     DDIMInverseScheduler,
@@ -36,14 +48,16 @@ class ImageGen:
         # torch_dtype=torch.float16
         # pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
         self.load_model(device, model_id_or_path)
+<<<<<<< HEAD
         self.blip_infer = BlipInfer()
         self.translator = GoogleTranslator()
         self.openai_api = OpenAIAPI()
+=======
+>>>>>>> 31e073c9f9eeada62d49226f4cf3efd749692432
        
 
     def load_model(self, device, model_id_or_path):
-        scheduler = DPMSolverMultistepScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
-        self.pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, scheduler = scheduler)
+        self.pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path)
         self.pipe.safety_checker = lambda images, clip_input: (images, False)
         #self.pipe.scheduler = DPMSolverMultistepScheduler.from_config(scheduler.config, use_karras_sigmas=True)
         self.pipe = self.pipe.to(device)
@@ -69,26 +83,24 @@ class ImageGen:
         return images[0]
     
     
-    def img2img_clip(self, img):
-
-        init_image = img
-        init_image = init_image.resize((512, 512))
-        caption = self.blip_infer.inference(init_image)
-        generator = torch.manual_seed(3306892559)
-
-        prompt = "masterpiece, best quality, ultra-detailed," + caption + ", illustration"
-        negative_prompt = "worst quality, low quality, realistic, text, title, logo, signature, abs, muscular, rib, depth of field, bokeh, blurry, greyscale, monochrome"
-        print("eval")
-        print("prompt: " + prompt)
-        print("negative_prompt: " + negative_prompt)
-        images = self.pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=generator, num_inference_steps=40, guidance_scale=7).images
-
-        return images[0]
-    
-    
     def ocr(self, split_imgs):
         # TODO: ocr from split_imgs to result
-        result = '오늘은, 재밌었다.'
+        # str_list = []
+        str_list =  str()
+        # str_list =  []
+        for image in split_imgs:
+            numpy_image=np.array(image)
+            opencv_image=cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
+            result, score = reader.readtext(opencv_image)[0][1], reader.readtext(opencv_image)[0][2]
+            if score < 0.4:
+                # str_list.append(' ')
+                str_list += ' '
+            else:
+                # str_list.append(result)
+                str_list += result
+        str_list= re.sub(r'[^\uAC00-\uD7A30-9a-zA-Z\s]', "", str_list)
+        # result = '오늘은, 재밌었다.'
+        result = str_list.lstrip().rstrip()
         return result
 
     def text2img(self, img):

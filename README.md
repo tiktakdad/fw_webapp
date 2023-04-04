@@ -1,4 +1,5 @@
-# 🐳 Flying Whales Webapp
+# fw_webapp
+
 
 ## quick start
 ```shell
@@ -16,9 +17,7 @@ python convert_original_stable_diffusion_to_diffusers.py --from_safetensors --ch
 ```
 
 ## sd model download
-- copy to fw_webapp/model
 - https://1drv.ms/u/s!AgGeqTkQEyKRib8iuOxTmLwXERrenA?e=nQyTEh
 
 ## clip model download
-- copy to fw_webapp/BLIP/pth
 - https://1drv.ms/f/s!AgGeqTkQEyKRib8j7ICWFR1JU8KpmA?e=agVGJ0

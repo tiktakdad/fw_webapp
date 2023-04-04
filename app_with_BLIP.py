@@ -6,7 +6,7 @@ from PIL import Image
 from io import BytesIO
 
 from diffusers import StableDiffusionImg2ImgPipeline, DPMSolverMultistepScheduler
-from BLIP.BLIP_infer import BlipInfer
+from BLIP.BLIP_infer import inference_BLIP
 
 from diffusers import (
     DDIMInverseScheduler,
@@ -33,11 +33,11 @@ from diffusers import (
 
 
 def img2img(img):
-    blip_infer = BlipInfer()
+
     init_image = img
     init_image = init_image.resize((512, 768))
 
-    caption = blip_infer.inference(init_image)
+    caption = inference_BLIP(init_image)
 
     device = "cuda"
     # model_id_or_path = "runwayml/stable-diffusion-v1-5"
