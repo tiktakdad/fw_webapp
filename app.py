@@ -6,8 +6,30 @@ from io import BytesIO
 
 from diffusers import StableDiffusionImg2ImgPipeline, DPMSolverMultistepScheduler
 
-def greet(name):
-    return "Hello " + name + "!"
+def ocr(split_imgs):
+    # TODO: ocr from split_imgs to result
+    result = '오늘은, 재밌었다.'
+    return result
+
+def text2img(img):
+    input_rows = 5
+    input_cols = 10
+    start_point = (82,702)
+    box = 63
+    margin = 0
+    split_imgs = []
+    for rows in range(input_rows):
+        for cols in range(input_cols):
+            left = cols*box+start_point[0]+margin
+            right = left+box
+            top = rows*box+start_point[1]+margin
+            bottom = top+box
+            split_img = img.crop((left, top, right, bottom))
+            split_img.save("output/{}_{}.jpg".format(rows, cols))
+            split_imgs.append(split_img)
+    
+    #im1 = im.crop((left, top, right, bottom))
+    return ocr(split_imgs)
 
 def img2img(img):
     device = "cuda"
@@ -46,6 +68,7 @@ def img2img(img):
 
     
 def run_app():
+    # TODO: 각 탭 별 코드 클래스 및 py 파일로 분할 하여 개발
     md = "🐳 Flying Whales"
     app1 = gr.Interface(fn=img2img, 
                 inputs=gr.Image(type="pil"),
@@ -53,10 +76,9 @@ def run_app():
                 examples=["resource/coloring/sample (1).png", "resource/coloring/sample (2).png"])
     app2 = gr.Interface(fn=img2img, 
                 inputs=gr.Image(type="pil"),
-                outputs=gr.Image(type="pil").style(width=256, height=384),
-                examples=["resource/coloring/sample (1).png", "resource/coloring/sample (2).png"])
-    app3 = gr.Interface(fn=greet, inputs="text", outputs="text")
-    demo = gr.TabbedInterface(title=md, interface_list=[app1, app2], tab_names=["coloring book", "free drawing"])
+                outputs=gr.Image(type="pil").style(width=256, height=384))
+    app3 = gr.Interface(fn=text2img, inputs=gr.Image(type="pil"), outputs="text", examples=["resource/diary/sample.jpg"])
+    demo = gr.TabbedInterface(title=md, interface_list=[app1, app2, app3], tab_names=["coloring book", "free drawing","diary"])
     demo.launch()
 
 
