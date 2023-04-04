@@ -1,12 +1,9 @@
 
 import torch
 from diffusers import StableDiffusionImg2ImgPipeline, DPMSolverMultistepScheduler
-<<<<<<< HEAD
 from BLIP.BLIP_infer import BlipInfer
 from .google_translator import GoogleTranslator
 from .open_ai import OpenAIAPI
-=======
-#from BLIP.BLIP_infer import inference_BLIP
 
 # OCR
 import numpy as np
@@ -15,7 +12,6 @@ import re
 import easyocr
 reader = easyocr.Reader(['ko','en'], gpu=True) # need to run only once to load model into memory 
 
->>>>>>> 31e073c9f9eeada62d49226f4cf3efd749692432
 
 from diffusers import (
     DDIMInverseScheduler,
@@ -48,12 +44,9 @@ class ImageGen:
         # torch_dtype=torch.float16
         # pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
         self.load_model(device, model_id_or_path)
-<<<<<<< HEAD
         self.blip_infer = BlipInfer()
         self.translator = GoogleTranslator()
         self.openai_api = OpenAIAPI()
-=======
->>>>>>> 31e073c9f9eeada62d49226f4cf3efd749692432
        
 
     def load_model(self, device, model_id_or_path):

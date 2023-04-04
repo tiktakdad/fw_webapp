@@ -22,3 +22,6 @@ diffusers
 gradio
 fairscale
 openai
+opencv-python
+python-bidi
+easyocr
