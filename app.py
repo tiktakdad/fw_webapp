@@ -6,6 +6,9 @@ from io import BytesIO
 
 from diffusers import StableDiffusionImg2ImgPipeline, DPMSolverMultistepScheduler
 
+def greet(name):
+    return "Hello " + name + "!"
+
 def img2img(img):
     device = "cuda"
     model_id_or_path = "runwayml/stable-diffusion-v1-5"
@@ -43,11 +46,19 @@ def img2img(img):
 
     
 def run_app():
-    gr.Interface(fn=img2img, 
+    md = "🐳 Flying Whales"
+    app1 = gr.Interface(fn=img2img, 
                 inputs=gr.Image(type="pil"),
                 outputs=gr.Image(type="pil").style(width=256, height=384),
-                examples=["resource/coloring/sample (1).png", "resource/coloring/sample (2).png"]).launch(debug=True)
-    demo.launch(share=True)
+                examples=["resource/coloring/sample (1).png", "resource/coloring/sample (2).png"])
+    app2 = gr.Interface(fn=img2img, 
+                inputs=gr.Image(type="pil"),
+                outputs=gr.Image(type="pil").style(width=256, height=384),
+                examples=["resource/coloring/sample (1).png", "resource/coloring/sample (2).png"])
+    app3 = gr.Interface(fn=greet, inputs="text", outputs="text")
+    demo = gr.TabbedInterface(title=md, interface_list=[app1, app2], tab_names=["coloring book", "free drawing"])
+    demo.launch()
+
 
 if __name__ == "__main__":
     run_app()
