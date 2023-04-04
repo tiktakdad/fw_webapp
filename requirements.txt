@@ -17,5 +17,6 @@ resize-right==0.0.2
 torchdiffeq==0.2.3
 safetensors==0.3.0
 httpcore<=0.15
+googletrans==4.0.0-rc1
 diffusers
 gradio
