@@ -2,15 +2,9 @@ import gradio as gr
 from PIL import Image
 from src.image_gen import ImageGen
 
-
-
-
     
 def run_app():
     # TODO: 각 탭 별 코드 클래스 및 py 파일로 분할 하여 개발
-    # for test
-   
-
     # create image generation model
     img_gen = ImageGen()
 
