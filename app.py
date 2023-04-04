@@ -18,7 +18,10 @@ def run_app():
                 inputs=gr.Image(type="pil"),
                 outputs=gr.Image(type="pil").style(width=512, height=512),
                 examples=["resource/coloring/sample (11).png"])
-    app3 = gr.Interface(fn=img_gen.text2img, inputs=gr.Image(type="pil"), outputs="text", examples=["resource/diary/sample.jpg"])
+    app3 = gr.Interface(fn=img_gen.text2img, 
+                        inputs=gr.Image(type="pil"), 
+                        outputs=["text", gr.Image(type="pil")], 
+                        examples=["resource/diary/sample.jpg"])
     demo = gr.TabbedInterface(title=md, interface_list=[app1, app2, app3], tab_names=["coloring book", "free drawing","diary"])
     demo.launch()
 

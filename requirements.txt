@@ -21,3 +21,4 @@ googletrans==4.0.0-rc1
 diffusers
 gradio
 fairscale
+openai
