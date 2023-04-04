@@ -5,6 +5,9 @@ BLIP/pth
 # gradio
 flagged/
 
+# outputs for debug
+output
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
