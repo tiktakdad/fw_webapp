@@ -1,6 +1,6 @@
 
 import torch
-from diffusers import StableDiffusionImg2ImgPipeline, StableDiffusionPipeline, DPMSolverMultistepScheduler
+from diffusers import StableDiffusionImg2ImgPipeline, StableDiffusionPipeline, DPMSolverMultistepScheduler, StableDiffusionKDiffusionPipeline, StableDiffusionLatentUpscalePipeline
 from BLIP.BLIP_infer import BlipInfer
 from .google_translator import GoogleTranslator
 from .open_ai import OpenAIAPI
@@ -39,11 +39,10 @@ from diffusers import (
 class ImageGen:
     def __init__(self) -> None:
         device = "cuda"
-        model_id_or_path = "runwayml/stable-diffusion-v1-5"
-        #model_id_or_path = "model/dump"
-        # torch_dtype=torch.float16
-        # pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
+        #model_id_or_path = "runwayml/stable-diffusion-v1-5"
+        model_id_or_path = "model/dump/"
         self.load_model(device, model_id_or_path)
+        self.generator = torch.Generator(device=device).manual_seed(42)
         self.blip_infer = BlipInfer()
         self.translator = GoogleTranslator()
         self.openai_api = OpenAIAPI()
@@ -51,24 +50,31 @@ class ImageGen:
        
 
     def load_model(self, device, model_id_or_path):
+        scheduler = DPMSolverMultistepScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
+        #scheduler = PNDMScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
         # img2img
-        self.i2i_pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
+        self.i2i_pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16,  scheduler = scheduler)
         self.i2i_pipe.safety_checker = lambda images, clip_input: (images, False)
-        #self.i2i_pipe.scheduler = DPMSolverMultistepScheduler.from_config(scheduler.config, use_karras_sigmas=True)
         self.i2i_pipe = self.i2i_pipe.to(device)
         # text2img
-        self.t2i_pipe = StableDiffusionPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
+        self.t2i_pipe = StableDiffusionPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16, scheduler = scheduler)
+        #self.t2i_pipe = StableDiffusionKDiffusionPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16, scheduler = scheduler)
         self.t2i_pipe.safety_checker = lambda images, clip_input: (images, False)
-        #self.i2i_pipe.scheduler = DPMSolverMultistepScheduler.from_config(scheduler.config, use_karras_sigmas=True)
         self.t2i_pipe = self.t2i_pipe.to(device)
+
+        model_id = "stabilityai/sd-x2-latent-upscaler"
+        self.upscaler = StableDiffusionLatentUpscalePipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+        self.upscaler.to(device)
 
     def img2img(self, img):
         init_image = img
         init_image = init_image.resize((512, 768))
-        generator = torch.manual_seed(3306892559)
+        
         prompt = "masterpiece, best quality, ultra-detailed, illustration,  1princess"
         negative_prompt = "worst quality, low quality, realistic, text, title, logo, signature, abs, muscular, rib, depth of field, bokeh, blurry, greyscale, monochrome"
-        images = self.i2i_pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=generator, num_inference_steps=40, guidance_scale=7).images
+        #generator = torch.manual_seed(-1)
+        images = self.i2i_pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=self.generator, num_inference_steps=40, guidance_scale=7, output_type="latent").images
+       
         '''
         upscaled_image = upscaler(
         prompt=prompt,
@@ -83,18 +89,13 @@ class ImageGen:
         return images[0]
     
     def img2img_clip(self, img):
-
         init_image = img
         init_image = init_image.resize((512, 512))
         caption = self.blip_infer.inference(init_image)
-        generator = torch.manual_seed(3306892559)
-
         prompt = "masterpiece, best quality, ultra-detailed," + caption + ", illustration"
         negative_prompt = "worst quality, low quality, realistic, text, title, logo, signature, abs, muscular, rib, depth of field, bokeh, blurry, greyscale, monochrome"
-        print("eval")
-        print("prompt: " + prompt)
-        print("negative_prompt: " + negative_prompt)
-        images = self.i2i_pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=generator, num_inference_steps=40, guidance_scale=7).images
+        #generator = torch.manual_seed(-1)
+        images = self.i2i_pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
 
         return caption, images[0]
     
@@ -124,7 +125,7 @@ class ImageGen:
         start_point = (82,702)
         box = 63
         margin = 0
-        generator = torch.manual_seed(3306892559)
+        #generator = torch.manual_seed(-1)
         split_imgs = []
         for rows in range(input_rows):
             for cols in range(input_cols):
@@ -150,10 +151,10 @@ class ImageGen:
         for result_prompt in result_prompt_list:
             prompt = "masterpiece, best quality, ultra-detailed," + result_prompt + ", illustration"
             negative_prompt = "worst quality, low quality, realistic, text, title, logo, signature, abs, muscular, rib, depth of field, bokeh, blurry, greyscale, monochrome"
-            images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=generator, num_inference_steps=40, guidance_scale=7).images
+            images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
             result_image_list.append(images[0])
             break
-        return result_prompt_list[0], result_image_list[0]
+        return result_ocr+'\n'+result_translation, result_prompt_list[0], result_image_list[0]
     
 if __name__ == "__main__":
     img_gen = ImageGen()
