@@ -8,8 +8,8 @@ from diffusers import StableDiffusionImg2ImgPipeline, DPMSolverMultistepSchedule
 
 def img2img(img):
     device = "cuda"
-    #model_id_or_path = "runwayml/stable-diffusion-v1-5"
-    model_id_or_path = "model/dump"
+    model_id_or_path = "runwayml/stable-diffusion-v1-5"
+    #model_id_or_path = "model/dump"
     #pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
     pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path)
     pipe.safety_checker = lambda images, clip_input: (images, False)
