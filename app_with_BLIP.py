@@ -1,5 +1,3 @@
-import sys
-sys.path.append("./BLIP")
 
 import gradio as gr
 import requests
@@ -42,7 +40,8 @@ def img2img(img):
     caption = inference_BLIP(init_image)
 
     device = "cuda"
-    model_id_or_path = "runwayml/stable-diffusion-v1-5"
+    # model_id_or_path = "runwayml/stable-diffusion-v1-5"
+    model_id_or_path = "../model/dump/"
 
     scheduler = DPMSolverMultistepScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
     # pipe.scheduler = DPMSolverMultistepScheduler.from_config(scheduler.config, use_karras_sigmas=True)
@@ -71,50 +70,12 @@ def img2img(img):
 
 
 def run_app():
-    scheduler_options = ['Placeholder A', 'Placeholder B', 'Placeholder C']
 
-    def closest_match(x):
-        return x + ": The Definitive Edition"
-
-    def Dropdown_list(x):
-        new_options = [*scheduler_options, x + " Remastered", x + ": The Remake", x + ": Game of the Year Edition",
-                       x + " Steelbook Edition"]
-        return gr.Dropdown.update(choices=new_options)
-
-    def Recommend_new(x):
-        return x + ": Highest Cosine Similarity"
-
-
-    # demo = gr.Interface(fn=img2img,
-    #          inputs=gr.Image(type="pil"),
-    #          outputs=gr.Image(type="pil").style(width=256, height=384),
-    #          examples=["resource/free_sketch/color_sketch.JPG", "resource/coloring/sample (1).png",
-    #                    "resource/coloring/sample (2).png"]).launch(debug=True)
-
-    demo = gr.Blocks()
-    with demo:
-
-        with gr.Row():
-            image_file = gr.Image(type="filepath")
-
-        with gr.Row():
-
-
-        text_input = gr.Textbox(label="Search bar")
-        b1 = gr.Button("Generate")
-
-        # text_options = gr.Dropdown(scheduler_options, label="Top 5 options")
-        # b2 = gr.Button("Provide Additional options")
-        #
-        # new_title = gr.Textbox(label="Here you go!")
-        # b3 = gr.Button("Recommend a new title")
-
-        b1.click(closest_match, inputs=text_input, outputs=text_options)
-        # b2.click(Dropdown_list, inputs=text_input, outputs=text_options)
-        # b3.click(Recommend_new, inputs=text_options, outputs=new_title)
-        # text_options.update(interactive=True)
-
-
+    demo = gr.Interface(fn=img2img,
+             inputs=gr.Image(type="pil"),
+             outputs=gr.Image(type="pil").style(width=256, height=384),
+             examples=["resource/free_sketch/color_sketch.JPG", "resource/coloring/sample (1).png",
+                       "resource/coloring/sample (2).png"]).launch(debug=True)
     demo.launch(share=True)
 
 if __name__ == "__main__":
