@@ -62,12 +62,19 @@ class server:
 
             if task_data == 0:
                 result = self.image_gen.img2img(image)
+                result_image = result[0]
+                result_image.save("./output/1.jpg")
             elif task_data == 1:
                 result = self.image_gen.img2img_clip(image)
+                result_clip_text = result[0]
+                result_image = result[1]
+                result_image.save("./output/1.jpg")
             else:
                 result = self.image_gen.text2img(image)
 
             print("result type", type(result))
+            print()
+            result[1].save()
 
             response = "Image received and processed."
             conn.sendall(response.encode('utf-8'))

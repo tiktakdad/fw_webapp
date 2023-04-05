@@ -28,7 +28,7 @@ if __name__ == '__main__':
     server_ip = '127.0.1.1'
     server_port = 9999
 
-    task_num = 0
+    task_num = 1
     image_path = './resource/coloring/sample (1).png'
 
     # Convert image to base64
