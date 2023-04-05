@@ -16,11 +16,14 @@ class GoogleTranslator:
 
     def translate(self, text):
         #encText = urllib.parse.quote(text)
-        if self.isEnglishOrKorean(text) == 0:
-            result = self.translator.translate(text, dest="en")
-        else:
-            result = self.translator.translate(text, dest="ko")
-        return result.text
+        res = ""
+        if text != "":
+            if self.isEnglishOrKorean(text) == 0:
+                result = self.translator.translate(text, dest="en")
+            else:
+                result = self.translator.translate(text, dest="ko")
+            res = result.text
+        return res
 
 
 

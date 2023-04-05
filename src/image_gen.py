@@ -39,8 +39,8 @@ from diffusers import (
 class ImageGen:
     def __init__(self) -> None:
         device = "cuda"
-        model_id_or_path = "runwayml/stable-diffusion-v1-5"
-        #model_id_or_path = "model/dump/"
+        #model_id_or_path = "runwayml/stable-diffusion-v1-5"
+        model_id_or_path = "model/dump/"
         self.load_model(device, model_id_or_path)
         self.generator = torch.Generator(device=device).manual_seed(0)
         self.blip_infer = BlipInfer()
@@ -145,12 +145,12 @@ class ImageGen:
                 top = rows*box+start_point[1]+margin
                 bottom = top+box
                 split_img = img.crop((left, top, right, bottom))
-                #split_img.save("output/{}_{}.jpg".format(rows, cols))
+                split_img.save("output/{}_{}.jpg".format(rows, cols))
                 split_imgs.append(split_img)
         
         #im1 = im.crop((left, top, right, bottom))
         result_ocr = self.ocr(split_imgs)
-        #print(result_ocr)
+        print(result_ocr)
         result_translation = self.translator.translate(result_ocr)
         #result_prompts_list = self.openai_api.run(result_translation)
         #sample = "I wore my rain boots to school today, and I thought I'd wear them again after school, but it stopped raining, so it wasn't so good. I hope it rains tomorrow."
@@ -162,7 +162,7 @@ class ImageGen:
         for result_prompt in result_prompt_list:
             prompt = "masterpiece, best quality, ultra-detailed, upperbody, " + result_prompt + ", illustration"
             negative_prompt = "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
-            images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
+            images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, width=632, height=408, guidance_scale=7).images
             result_image_list.append(images[0])
             #low_res_latents = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7, output_type="latent").images
             '''
