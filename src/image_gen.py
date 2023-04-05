@@ -42,7 +42,7 @@ class ImageGen:
         #model_id_or_path = "runwayml/stable-diffusion-v1-5"
         model_id_or_path = "model/dump/"
         self.load_model(device, model_id_or_path)
-        self.generator = torch.Generator(device=device).manual_seed(42)
+        self.generator = torch.Generator(device=device).manual_seed(0)
         self.blip_infer = BlipInfer()
         self.translator = GoogleTranslator()
         self.openai_api = OpenAIAPI()
@@ -50,8 +50,8 @@ class ImageGen:
        
 
     def load_model(self, device, model_id_or_path):
-        #scheduler = DPMSolverMultistepScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
-        scheduler = EulerAncestralDiscreteScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
+        scheduler = DPMSolverMultistepScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
+        #scheduler = EulerAncestralDiscreteScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
         #scheduler = PNDMScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
 
         # vae
@@ -81,7 +81,7 @@ class ImageGen:
 
     def img2img(self, img):
         init_image = img
-        init_image = init_image.resize((512, 512))
+        init_image = init_image.resize((512, 784))
         
         prompt = "masterpiece, best quality, ultra-detailed, illustration,  1princess"
         negative_prompt = "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
@@ -101,10 +101,10 @@ class ImageGen:
     
     def img2img_clip(self, img):
         init_image = img
-        init_image = init_image.resize((512, 512))
+        init_image = init_image.resize((784, 784))
         caption = self.blip_infer.inference(init_image)
         prompt = "masterpiece, best quality, ultra-detailed," + caption + ", illustration"
-        negative_prompt = "worst quality, low quality, realistic, text, title, logo, signature, abs, muscular, rib, depth of field, bokeh, blurry, greyscale, monochrome"
+        negative_prompt = "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
         #generator = torch.manual_seed(-1)
         images = self.i2i_pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
 
@@ -150,7 +150,7 @@ class ImageGen:
         
         #im1 = im.crop((left, top, right, bottom))
         result_ocr = self.ocr(split_imgs)
-        print(result_ocr)
+        #print(result_ocr)
         result_translation = self.translator.translate(result_ocr)
         #result_prompts_list = self.openai_api.run(result_translation)
         #sample = "I wore my rain boots to school today, and I thought I'd wear them again after school, but it stopped raining, so it wasn't so good. I hope it rains tomorrow."
@@ -160,13 +160,14 @@ class ImageGen:
         result_prompt_list = answer.split('\n')
         result_image_list = []
         for result_prompt in result_prompt_list:
-            prompt = "masterpiece, best quality, ultra-detailed, upperbody," + "1girl, " + ", illustration"
-            negative_prompt = "worst quality, low quality, realistic, text, title, logo, signature, abs, muscular, rib, depth of field, bokeh, blurry, greyscale, monochrome"
-            #images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
+            prompt = "masterpiece, best quality, ultra-detailed, upperbody, " + result_prompt + ", illustration"
+            negative_prompt = "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
+            images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
+            result_image_list.append(images[0])
             #low_res_latents = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7, output_type="latent").images
+            '''
             low_res_latents = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7, use_karras_sigmas=True).images
             upscaled_image = low_res_latents[0]
-            '''
             upscaled_image = self.upscaler(
                 prompt=prompt,
                 image=low_res_latents,
@@ -175,8 +176,9 @@ class ImageGen:
                 generator=self.generator,
                 output_type="pil"
             ).images[0]
-            '''
             result_image_list.append(upscaled_image)
+            '''
+            
             break
         return result_ocr+'\n'+result_translation, result_prompt_list[0], result_image_list[0]
     
