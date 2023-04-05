@@ -1,6 +1,6 @@
 
 import torch
-from diffusers import StableDiffusionImg2ImgPipeline, StableDiffusionPipeline, DPMSolverMultistepScheduler, StableDiffusionKDiffusionPipeline, StableDiffusionLatentUpscalePipeline
+from diffusers import StableDiffusionImg2ImgPipeline, StableDiffusionPipeline, AutoencoderKL, StableDiffusionLatentUpscalePipeline
 from BLIP.BLIP_infer import BlipInfer
 from .google_translator import GoogleTranslator
 from .open_ai import OpenAIAPI
@@ -50,42 +50,53 @@ class ImageGen:
        
 
     def load_model(self, device, model_id_or_path):
-        scheduler = DPMSolverMultistepScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
+        #scheduler = DPMSolverMultistepScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
+        scheduler = EulerAncestralDiscreteScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
         #scheduler = PNDMScheduler.from_pretrained(model_id_or_path, subfolder="scheduler")
+
+        # vae
+        vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse", torch_dtype=torch.float16).to("cuda")
+        
+        
         # img2img
         self.i2i_pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16,  scheduler = scheduler)
         self.i2i_pipe.safety_checker = lambda images, clip_input: (images, False)
         self.i2i_pipe = self.i2i_pipe.to(device)
+        self.i2i_pipe.vae = vae
+
+
+        
         # text2img
         self.t2i_pipe = StableDiffusionPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16, scheduler = scheduler)
-        #self.t2i_pipe = StableDiffusionKDiffusionPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16, scheduler = scheduler)
+        #self.t2i_pipe = StableDiffusionKDiffusionPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
+        #self.t2i_pipe.set_scheduler('sample_dpmpp_2m')
         self.t2i_pipe.safety_checker = lambda images, clip_input: (images, False)
         self.t2i_pipe = self.t2i_pipe.to(device)
+        self.t2i_pipe.vae = vae
 
+        # upscaler
         model_id = "stabilityai/sd-x2-latent-upscaler"
         self.upscaler = StableDiffusionLatentUpscalePipeline.from_pretrained(model_id, torch_dtype=torch.float16)
         self.upscaler.to(device)
 
     def img2img(self, img):
         init_image = img
-        init_image = init_image.resize((512, 768))
+        init_image = init_image.resize((512, 512))
         
         prompt = "masterpiece, best quality, ultra-detailed, illustration,  1princess"
-        negative_prompt = "worst quality, low quality, realistic, text, title, logo, signature, abs, muscular, rib, depth of field, bokeh, blurry, greyscale, monochrome"
-        #generator = torch.manual_seed(-1)
-        images = self.i2i_pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=self.generator, num_inference_steps=40, guidance_scale=7, output_type="latent").images
-       
+        negative_prompt = "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
+        images = self.i2i_pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
         '''
-        upscaled_image = upscaler(
-        prompt=prompt,
-        image=low_res_latents,
-        num_inference_steps=20,
-        guidance_scale=0,
-        generator=generator,
-        ).images[0]
-            print(type(images[0]))
-            # images[0].save("fantasy_landscape.png")
-        '''
+        low_res_latents = self.i2i_pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=self.generator, num_inference_steps=20, guidance_scale=7, output_type="latent").images
+        upscaled_image = self.upscaler(
+            prompt=prompt,
+            image=low_res_latents,
+            num_inference_steps=50,
+            guidance_scale=7,
+            generator=self.generator,
+            output_type="pil"
+            ).images[0]
+            '''
         return images[0]
     
     def img2img_clip(self, img):
@@ -134,7 +145,7 @@ class ImageGen:
                 top = rows*box+start_point[1]+margin
                 bottom = top+box
                 split_img = img.crop((left, top, right, bottom))
-                split_img.save("output/{}_{}.jpg".format(rows, cols))
+                #split_img.save("output/{}_{}.jpg".format(rows, cols))
                 split_imgs.append(split_img)
         
         #im1 = im.crop((left, top, right, bottom))
@@ -149,10 +160,23 @@ class ImageGen:
         result_prompt_list = answer.split('\n')
         result_image_list = []
         for result_prompt in result_prompt_list:
-            prompt = "masterpiece, best quality, ultra-detailed," + result_prompt + ", illustration"
+            prompt = "masterpiece, best quality, ultra-detailed, upperbody," + "1girl, " + ", illustration"
             negative_prompt = "worst quality, low quality, realistic, text, title, logo, signature, abs, muscular, rib, depth of field, bokeh, blurry, greyscale, monochrome"
-            images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
-            result_image_list.append(images[0])
+            #images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
+            #low_res_latents = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7, output_type="latent").images
+            low_res_latents = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7, use_karras_sigmas=True).images
+            upscaled_image = low_res_latents[0]
+            '''
+            upscaled_image = self.upscaler(
+                prompt=prompt,
+                image=low_res_latents,
+                num_inference_steps=30,
+                guidance_scale=7,
+                generator=self.generator,
+                output_type="pil"
+            ).images[0]
+            '''
+            result_image_list.append(upscaled_image)
             break
         return result_ocr+'\n'+result_translation, result_prompt_list[0], result_image_list[0]
     

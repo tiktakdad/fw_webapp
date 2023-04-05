@@ -18,10 +18,11 @@ torchdiffeq==0.2.3
 safetensors==0.3.0
 httpcore<=0.15
 googletrans==4.0.0-rc1
-diffusers
+git+https://github.com/huggingface/diffusers.git
 gradio
 fairscale
 openai
 opencv-python==4.5.5.64
 python-bidi
 easyocr
+k-diffusion
