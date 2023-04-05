@@ -1,7 +1,7 @@
 import openai
-import json
+import os
 
-openai.api_key = "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"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class OpenAIAPI:
     def __init__(self) -> None:
@@ -43,8 +43,10 @@ class OpenAIAPI:
 
 
 if __name__ == "__main__":
-    
+    '''
     api = OpenAIAPI()
     answer = api.run("I wore my rain boots to school today, and I thought I'd wear them again after school, but it stopped raining, so it wasn't so good. I hope it rains tomorrow.")
     print('answer:',answer)
+    '''
+    print(openai.api_key)
     
