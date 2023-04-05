@@ -39,8 +39,8 @@ from diffusers import (
 class ImageGen:
     def __init__(self) -> None:
         device = "cuda"
-        #model_id_or_path = "runwayml/stable-diffusion-v1-5"
-        model_id_or_path = "model/dump/"
+        model_id_or_path = "runwayml/stable-diffusion-v1-5"
+        #model_id_or_path = "model/dump/"
         self.load_model(device, model_id_or_path)
         self.generator = torch.Generator(device=device).manual_seed(0)
         self.blip_infer = BlipInfer()

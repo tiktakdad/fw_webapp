@@ -1,10 +1,30 @@
 import socket
-import threading
-import os
 import json
 import base64
+import threading
+from io import BytesIO
+from PIL import Image
 from src.image_gen import ImageGen
 
+def base64_to_image(base64_str):
+    img_data = base64.b64decode(base64_str)
+    return Image.open(BytesIO(img_data))
+
+def process_request(data):
+    json_data = json.loads(data)
+    image = base64_to_image(json_data['image'])
+
+    print("Task: ", json_data['task'])
+    print("Image size: ", image.size)
+
+def recv_all(sock, n):
+    data = bytearray()
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            return None
+        data.extend(packet)
+    return data
 
 class server:
 
@@ -22,35 +42,50 @@ class server:
 
         self.image_gen = ImageGen()
 
-    def handle_request(self, client_socket, addr):
+    def handle_request(self, conn, addr):
+        with conn:
+            print(f"Connected by {addr}")
 
-        data = client_socket.recv(1024)
+            # Receive the data length first
+            data_length = int.from_bytes(conn.recv(4), 'big')
 
-        # parse the JSON data
-        json_data = json.loads(data.decode())
+            # Receive the data in chunks
+            data = recv_all(conn, data_length)
+            if not data:
+                return
 
-        # extract the image and text data from the JSON data
-        task_data = json_data['task']
-        text_data = json_data['text']
-        image_data = base64.b64decode(json_data['image'])
+            json_data_decode = data.decode('utf-8')
+            json_data = json.loads(json_data_decode)
+            # extract the image and text data from the JSON data
+            task_data = json_data['task']
+            image = base64_to_image(json_data['image'])
 
-        print("type image_data", type(image_data))
+            if task_data == 0:
+                result = self.image_gen.img2img(image)
+            elif task_data == 1:
+                result = self.image_gen.img2img_clip(image)
+            else:
+                result = self.image_gen.text2img(image)
 
-        if task_data == 0: result = self.image_gen.img2img(image_data)
-        elif task_data == 1: result = self.image_gen.img2img_clip(image_data)
-        else: result= self.image_gen.text2img(image_data)
+            print("result type", type(result))
 
-        print("type result: ", type(result))
+            response = "Image received and processed."
+            conn.sendall(response.encode('utf-8'))
 
-        # close the client socket
-        client_socket.close()
 
     def start(self):
         print("---Server Start!!---")
+        print(self.server_socket.getsockname()[0])
         while True:
             # wait for a client to connect
-            client_socket, addr = self.server_socket.accept()
+            conn, addr = self.server_socket.accept()
 
             # create a new thread to handle the request
-            t = threading.Thread(target=self.handle_request, args=(client_socket, addr))
+            t = threading.Thread(target=self.handle_request, args=(conn, addr))
             t.start()
+
+
+
+
+
+
