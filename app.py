@@ -1,13 +1,28 @@
 import gradio as gr
 from PIL import Image
 from src.image_gen import ImageGen
+import json
 
 
+def read_img2img_json(path):
+    # './resource/coloring/coloring.json'
+    with open(path, 'r') as file:
+        img2img_json_data = json.load(file)
+    return img2img_json_data
 
-    
+def img2img_json2examplesList(json_data):
+    json_keys = json_data.keys()
+    list_filepaths = []
+    for filename in json_keys:
+        list_filepaths.append([json_data[filename]['path'], filename])
+    return list_filepaths
+
 def run_app():
     # TODO: 각 탭 별 코드 클래스 및 py 파일로 분할 하여 개발
     # for test
+
+    img2img_json_path = './resource/coloring/coloring.json'
+    img2img_json_data = read_img2img_json(img2img_json_path)
 
     # create image generation model
     img_gen = ImageGen()
@@ -15,9 +30,11 @@ def run_app():
     # create gradio
     md = "🐳 Flying Whales"
     app1 = gr.Interface(fn=img_gen.img2img, 
-                inputs=gr.Image(type="pil"),
+                inputs=[gr.Image(type="pil"), gr.inputs.Textbox(label="filename")],
                 outputs=gr.Image(type="pil").style(width=512, height=512),
-                examples=["resource/coloring/sample (1).png", "resource/coloring/sample (2).png"])
+                examples=img2img_json2examplesList(img2img_json_data)
+                #examples=["resource/coloring/sample (1).png", "resource/coloring/sample (2).png"]
+                )
     app2 = gr.Interface(fn=img_gen.img2img_clip, 
                 inputs=gr.Image(type="pil"),
                 outputs=["text", gr.Image(type="pil").style(width=512, height=512)],

@@ -1,0 +1,57 @@
+{
+	"sample (1)":{
+		"path" : "resource/coloring/sample (1).png",
+		"prompt": "masterpiece, best quality, ultra-detailed, 8k, 1princess, smile, storybook illustration",
+		"negative prompt": "text, nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, , title, logo, signature",
+		"seed" : 3306892559,
+		"size" : [512,784],
+		"strength":0.4,
+		"num_inference_steps":40,
+		"guidance_scale":7
+	},
+	"sample (6)":{
+		"path" : "resource/coloring/sample (6).png",
+		"prompt": "masterpiece, best quality, ultra-detailed, 8k, a cartoon cute 1dinosaur standing, sky, sun, cloud, sea, mountain, land, flower",
+		"negative prompt": "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature, book",
+		"seed" : 254123115,
+		"size" : [512,512],
+		"strength":0.5,
+		"num_inference_steps":40,
+		"guidance_scale":7
+	},
+	"sample (9)":{
+		"path" : "resource/coloring/sample (9).png",
+		"prompt": "masterpiece, best quality, 8k, ultra-detailed, illustration, cute, 5chick, car, sky, butterfly mountain, tree, flower, house",
+		"negative prompt": "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature, book",
+		"seed" : 254123115,
+		"size" : [512,512],
+		"strength":0.4,
+		"num_inference_steps":30,
+		"guidance_scale":4
+	},
+	"sample (22)":{
+		"path" : "resource/coloring/sample (22).png",
+		"prompt": "masterpiece, best quality, ultra-detailed, 8k, a cartoon of a little prince with cloak, telescope, roses on a planet, colorful stars",
+		"negative prompt": "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
+		,"seed" : 1206892559,
+		"size" : [512,512],
+		"strength":0.4,
+		"num_inference_steps":40,
+		"guidance_scale":7
+	},
+	"sample (23)":{
+		"path" : "resource/coloring/sample (23).png",
+		"prompt": "masterpiece, best quality, ultra-detailed, illustration, cute, 1pirate ship, cloud, sea",
+		"negative prompt": "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature",
+		"seed" : 1206892559,
+		"size" : [512,512],
+		"strength":0.5,
+		"num_inference_steps":40,
+		"guidance_scale":7
+	}
+
+}
+
+
+
+

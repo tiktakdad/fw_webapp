@@ -10,8 +10,8 @@ import numpy as np
 import cv2
 import re
 import easyocr
-
-
+import json
+import gradio as gr
 
 from diffusers import (
     DDIMInverseScheduler,
@@ -38,11 +38,13 @@ from diffusers import (
 
 class ImageGen:
     def __init__(self) -> None:
-        device = "cuda"
+        self.device = "cuda"
         #model_id_or_path = "runwayml/stable-diffusion-v1-5"
-        model_id_or_path = "model/dump/"
-        self.load_model(device, model_id_or_path)
-        self.generator = torch.Generator(device=device).manual_seed(0)
+        #model_id_or_path = "../model/dosmix/"
+        model_id_or_path = "../model/dump2/"
+        #model_id_or_path = "model/dump/"
+        self.load_model(self.device, model_id_or_path)
+        self.generator = torch.Generator(device=self.device).manual_seed(0)
         self.blip_infer = BlipInfer()
         self.translator = GoogleTranslator()
         self.openai_api = OpenAIAPI()
@@ -79,24 +81,55 @@ class ImageGen:
         self.upscaler = StableDiffusionLatentUpscalePipeline.from_pretrained(model_id, torch_dtype=torch.float16)
         self.upscaler.to(device)
 
-    def img2img(self, img):
+    def img2img(self, img, filename = None):
+
+        def read_img2img_json(path):
+            # './resource/coloring/coloring.json'
+            with open(path, 'r') as file:
+                img2img_json_data = json.load(file)
+            return img2img_json_data
+
+        if filename != None:
+            img2img_json_path = './resource/coloring/coloring.json'
+            img2img_json_data = read_img2img_json(img2img_json_path)
+            prompt, negative_prompt, seed = img2img_json_data[filename]['prompt'], \
+                                            img2img_json_data[filename]['negative prompt'], \
+                                            img2img_json_data[filename]['seed']
+            img_size = img2img_json_data[filename]['size']
+            strength = img2img_json_data[filename]['strength']
+            num_inference_steps = img2img_json_data[filename]['num_inference_steps']
+            guidance_scale = img2img_json_data[filename]['guidance_scale']
+        else:
+            prompt = "masterpiece, best quality, ultra-detailed, illustration"
+            negative_prompt = "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
+            seed = 0
+            img_size = [512,512]
+            strength = 0.5
+            num_inference_steps = 30
+            guidance_scale = 7
+
+        self.generator = torch.Generator(device=self.device).manual_seed(seed)
+
         init_image = img
-        init_image = init_image.resize((512, 784))
-        
-        prompt = "masterpiece, best quality, ultra-detailed, illustration,  1princess"
-        negative_prompt = "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
-        images = self.i2i_pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
-        '''
-        low_res_latents = self.i2i_pipe(prompt=prompt,negative_prompt=negative_prompt, image=init_image, generator=self.generator, num_inference_steps=20, guidance_scale=7, output_type="latent").images
-        upscaled_image = self.upscaler(
-            prompt=prompt,
-            image=low_res_latents,
-            num_inference_steps=50,
-            guidance_scale=7,
-            generator=self.generator,
-            output_type="pil"
-            ).images[0]
-            '''
+        init_image = init_image.resize(img_size)
+
+        images = self.i2i_pipe(prompt=prompt, strength = strength, negative_prompt=negative_prompt,
+                               image=init_image, generator=self.generator,
+                               num_inference_steps=num_inference_steps, guidance_scale=guidance_scale).images
+
+        # low_res_latents = self.i2i_pipe(prompt=prompt, strength = 0.5, negative_prompt=negative_prompt,
+        #                          image=init_image, generator=self.generator,
+        #                          num_inference_steps=40, guidance_scale=7, output_type="latent").images
+        # upscaled_image = self.upscaler(
+        #     prompt=prompt,
+        #     image=low_res_latents,
+        #     num_inference_steps=40,
+        #     guidance_scale=7,
+        #     generator=self.generator,
+        #     output_type="pil"
+        #     ).images[0]
+        #
+        # return upscaled_image
         return images[0]
     
     def img2img_clip(self, img):
@@ -145,12 +178,12 @@ class ImageGen:
                 top = rows*box+start_point[1]+margin
                 bottom = top+box
                 split_img = img.crop((left, top, right, bottom))
-                split_img.save("output/{}_{}.jpg".format(rows, cols))
+                #split_img.save("output/{}_{}.jpg".format(rows, cols))
                 split_imgs.append(split_img)
         
         #im1 = im.crop((left, top, right, bottom))
         result_ocr = self.ocr(split_imgs)
-        print(result_ocr)
+        #print(result_ocr)
         result_translation = self.translator.translate(result_ocr)
         #result_prompts_list = self.openai_api.run(result_translation)
         #sample = "I wore my rain boots to school today, and I thought I'd wear them again after school, but it stopped raining, so it wasn't so good. I hope it rains tomorrow."
@@ -162,7 +195,7 @@ class ImageGen:
         for result_prompt in result_prompt_list:
             prompt = "masterpiece, best quality, ultra-detailed, upperbody, " + result_prompt + ", illustration"
             negative_prompt = "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
-            images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, width=632, height=408, guidance_scale=7).images
+            images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
             result_image_list.append(images[0])
             #low_res_latents = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7, output_type="latent").images
             '''
