@@ -44,7 +44,7 @@ def run_app():
                         outputs=["text","text", gr.Image(type="pil").style(width=632, height=408)], 
                         examples=["resource/diary/sample.jpg"])
     demo = gr.TabbedInterface(title=md, interface_list=[app1, app2, app3], tab_names=["coloring book", "free drawing","diary"])
-    demo.launch(debug=True)
+    demo.launch(server_name='0.0.0.0')
 
 
 if __name__ == "__main__":

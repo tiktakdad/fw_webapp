@@ -38,7 +38,7 @@ class server:
         #self.host = socket.gethostname()
         # bind the socket to a public host, and a port
         #self.server_socket.bind((self.host, self.port))
-        self.server_socket.bind(('', self.port))
+        self.server_socket.bind(('192.168.0.18', self.port))
         # set the server to listen for incoming requests
         self.server_socket.listen(1)
 
@@ -84,8 +84,7 @@ class server:
                 output_image.save("./output/3.jpg")
                 image_path = './resource/diary/diary_sample.png'
                 encoded_image = self.image_to_base64("./output/3.jpg")
-                print('encoded_image: ',encoded_image[0:5], ' len: ', len(encoded_image))
-                #encoded_image = base64.b64encode(output_image).decode('utf-8')
+                print('encoded_image: ',encoded_image, ' len: ', len(encoded_image))
                 encoded_image_length = len(encoded_image)
             
 
