@@ -42,8 +42,8 @@ class ImageGen:
         self.device = "cuda"
         #model_id_or_path = "runwayml/stable-diffusion-v1-5"
         #model_id_or_path = "../model/dosmix/"
-        model_id_or_path = "../model/dump2/"
-        #model_id_or_path = "model/dump/"
+        #model_id_or_path = "../model/dump2/"
+        model_id_or_path = "model/dump/"
         self.load_model(self.device, model_id_or_path)
         self.generator = torch.Generator(device=self.device).manual_seed(0)
         self.blip_infer = BlipInfer()
@@ -171,13 +171,13 @@ class ImageGen:
             numpy_image=np.array(image)
             opencv_image=cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
             result, score = self.reader.readtext(opencv_image)[0][1], self.reader.readtext(opencv_image)[0][2]
-            if score < 0.4:
+            if score < 0.25:
                 # str_list.append(' ')
                 str_list += ' '
             else:
                 # str_list.append(result)
                 str_list += result
-        str_list= re.sub(r'[^\uAC00-\uD7A30-9a-zA-Z\s]', "", str_list)
+        str_list= re.sub(r'[^\uAC00-\uD7A30-9a-zA-Z\s]', " ", str_list)
         # result = '오늘은, 재밌었다.'
         result = str_list.lstrip().rstrip()
         return result
@@ -187,7 +187,7 @@ class ImageGen:
         input_cols = 10
         start_point = (82,702)
         box = 63
-        margin = 0
+        margin = 1
         #generator = torch.manual_seed(-1)
         split_imgs = []
         for rows in range(input_rows):
@@ -197,6 +197,7 @@ class ImageGen:
                 top = rows*box+start_point[1]+margin
                 bottom = top+box
                 split_img = img.crop((left, top, right, bottom))
+                split_img = split_img.crop((2,2,split_img.width-4, split_img.height-4))
                 #split_img.save("output/{}_{}.jpg".format(rows, cols))
                 split_imgs.append(split_img)
         
@@ -204,17 +205,20 @@ class ImageGen:
         result_ocr = self.ocr(split_imgs)
         #print(result_ocr)
         result_translation = self.translator.translate(result_ocr)
-        #result_prompts_list = self.openai_api.run(result_translation)
+        result_prompt_list = self.openai_api.run(result_translation)
         #sample = "I wore my rain boots to school today, and I thought I'd wear them again after school, but it stopped raining, so it wasn't so good. I hope it rains tomorrow."
         #result_prompt_list = self.openai_api.run(sample)
-        answer = '- A digital painting of a school hallway with a student wearing their rain boots, hoping for rain, muted color palette, low lighting, artstation, highly detailed, sharp focus.\n- A moody illustration of a student looking out a window, rain droplets sliding down the glass, with their rain boots by the door, artstation, trending, low angle, sharp focus, high detail, dark color scheme.\n- A whimsical digital portrait of a student sitting in a park with their rain boots on, surrounded by flowers and a rainbow overhead, art by loish and rossdraws, intricate details, pastel color scheme, sharp focus, artstation.\n- An emotional piece of a student standing outside in the sun with their rain boots on, staring up at the clear sky, their disappointment palpable, art by Sam Yang and trending on deviantart, intricate details, sharp lines, glossy finish, digital art.\n- An atmospheric digital painting of a student walking home from school with their rain boots, the sun setting behind them, casting long shadows and a warm glow over everything, artstation, concept art, smooth, sharp focus, warm color palette.'
-        answer = answer.replace('- ', '')
-        result_prompt_list = answer.split('\n')
+        #answer = '- A digital painting of a school hallway with a student wearing their rain boots, hoping for rain, muted color palette, low lighting, artstation, highly detailed, sharp focus.\n- A moody illustration of a student looking out a window, rain droplets sliding down the glass, with their rain boots by the door, artstation, trending, low angle, sharp focus, high detail, dark color scheme.\n- A whimsical digital portrait of a student sitting in a park with their rain boots on, surrounded by flowers and a rainbow overhead, art by loish and rossdraws, intricate details, pastel color scheme, sharp focus, artstation.\n- An emotional piece of a student standing outside in the sun with their rain boots on, staring up at the clear sky, their disappointment palpable, art by Sam Yang and trending on deviantart, intricate details, sharp lines, glossy finish, digital art.\n- An atmospheric digital painting of a student walking home from school with their rain boots, the sun setting behind them, casting long shadows and a warm glow over everything, artstation, concept art, smooth, sharp focus, warm color palette.'
+        #answer = answer.replace('- ', '')
+        #result_prompt_list = answer.split('\n')
         result_image_list = []
         for result_prompt in result_prompt_list:
-            prompt = "masterpiece, best quality, ultra-detailed, upperbody, " + result_prompt + ", illustration"
-            negative_prompt = "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
-            images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
+            result_prompt_splited = result_prompt.split(',') # no use style prompt
+            if  len(result_prompt_splited) >3:
+                result_prompt = result_prompt_splited[0] +  result_prompt_splited[1] +  result_prompt_splited[2]
+            prompt = "masterpiece, best quality, ultra-detailed, upperbody, 1child, storybook illustration, " + result_prompt
+            negative_prompt = "((nsfw)), worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
+            images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, width=632, height=408, guidance_scale=7).images
             result_image_list.append(images[0])
             #low_res_latents = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7, output_type="latent").images
             '''
@@ -232,7 +236,7 @@ class ImageGen:
             '''
             
             break
-        return result_ocr+'\n'+result_translation, result_prompt_list[0], result_image_list[0]
+        return result_ocr+'\n'+result_translation, result_prompt, result_image_list[0]
     
 if __name__ == "__main__":
     img_gen = ImageGen()
