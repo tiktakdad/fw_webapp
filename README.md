@@ -3,9 +3,11 @@
 
 ## quick start
 ```shell
-git clone https://github.com/tiktakdad/fw_webapp.git
 (optional) conda create -n fw_webapp python=3.9
 (optional) conda activate fw_webapp
+
+git clone https://github.com/tiktakdad/fw_webapp.git
+cd fw_webapp
 pip install -r requirements.txt
 python app.py
 ```
