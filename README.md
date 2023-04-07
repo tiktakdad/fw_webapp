@@ -6,6 +6,7 @@
 (optional) conda create -n fw_webapp python=3.9
 (optional) conda activate fw_webapp
 
+export OPENAI_API_KEY='your openai api key
 git clone https://github.com/tiktakdad/fw_webapp.git
 cd fw_webapp
 pip install -r requirements.txt
