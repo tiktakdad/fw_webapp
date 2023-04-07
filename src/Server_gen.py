@@ -46,45 +46,40 @@ class server:
 
     def handle_request(self, conn, addr):
         with conn:
-            print('1')
             print(f"Connected by {addr}")
-
             # Receive the data length first
             data_length = int.from_bytes(conn.recv(4), 'little')
-            print('2')
-            print(data_length)
             # Receive the data in chunks
             data = recv_all(conn, data_length)
             if not data:
                 return
-            print('3')
             json_data_decode = data.decode('utf-8')
             json_data = json.loads(json_data_decode)
             # extract the image and text data from the JSON data
             task_data = json_data['task']
             image = base64_to_image(json_data['image'])
-            image.save("./output/test.jpg")
-            print(task_data)
+            image.save("./resource/input.jpg")
+            print('task:', task_data)
             #print(json_data['image'])
 
 
             if task_data == 0:
                 result = self.image_gen.img2img(image)
                 result_image = result[0]
-                result_image.save("./output/1.jpg")
+                result_image.save("./resource/task_0.jpg")
             elif task_data == 1:
                 result = self.image_gen.img2img_clip(image)
                 result_clip_text = result[0]
                 result_image = result[1]
-                result_image.save("./output/2.jpg")
+                result_image.save("./resource/task_1.jpg")
             else:
                 ocr_trans, prompt, output_image = self.image_gen.text2img(image)
-                print(ocr_trans)
+                print('ocr_trans: ', ocr_trans)
                 print(prompt)
-                output_image.save("./output/3.jpg")
-                image_path = './resource/diary/diary_sample.png'
-                encoded_image = self.image_to_base64("./output/3.jpg")
-                print('encoded_image: ',encoded_image, ' len: ', len(encoded_image))
+                output_image.save("./resource/task_2.jpg")
+                #image_path = './resource/diary/diary_sample.png'
+                encoded_image = self.image_to_base64("./resource/task_2.jpg")
+                #print('encoded_image: ',encoded_image, ' len: ', len(encoded_image))
                 encoded_image_length = len(encoded_image)
             
 

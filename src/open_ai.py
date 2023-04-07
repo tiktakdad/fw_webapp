@@ -26,16 +26,24 @@ class OpenAIAPI:
                 - Follow the structure of the example prompts. This means Write a description of the scene, followed by modifiers divided by commas to alter the mood, style, lighting, and more, excluding the artist name, separated by commas. place a extra commas.\
                 I want you to write me a list of detailed prompts exactly about the IDEA follow the rule at least 5 every time.\
                 IDEA: %s" % (text)
-        self.completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": f"%s" % prompt_initial},
-            ]
-        )
-        answer = self.completion['choices'][0]['message']['content'].strip()
-        answer = answer.replace('- ', '')
-        prompts = answer.split('\n')
+        
+
+        try:
+            self.completion = openai.ChatCompletion.create(
+            request_timeout = 6,
+            model="gpt-3.5-turbo",
+            messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": f"%s" % prompt_initial},
+                ]
+            )
+            answer = self.completion['choices'][0]['message']['content'].strip()
+            answer = answer.replace('- ', '')
+            prompts = answer.split('\n')
+        except:
+            print('[ERROR] request time out')
+            prompts = [text]
+        
         return prompts
 
     

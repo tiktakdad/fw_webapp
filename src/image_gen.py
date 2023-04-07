@@ -216,13 +216,12 @@ class ImageGen:
         for result_prompt in result_prompt_list:
             result_prompt_splited = result_prompt.split(',') # no use style prompt
             if  len(result_prompt_splited) >3:
-                result_prompt = result_prompt_splited[0] +  result_prompt_splited[1] +  result_prompt_splited[2]
+                result_prompt = result_prompt_splited[0] + ', ' + result_prompt_splited[1] +', ' +   result_prompt_splited[2]
             prompt = "masterpiece, best quality, ultra-detailed, upperbody, 1child, storybook illustration, " + result_prompt
             negative_prompt = "((nsfw)), worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
-            print('=== start t2i_pipe')
             images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, width=632, height=408, guidance_scale=7).images
-            print('=== end t2i_pipe')
             result_image_list.append(images[0])
+            break
             #low_res_latents = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7, output_type="latent").images
             '''
             low_res_latents = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7, use_karras_sigmas=True).images
@@ -237,8 +236,6 @@ class ImageGen:
             ).images[0]
             result_image_list.append(upscaled_image)
             '''
-            
-            break
         return result_ocr+'\n'+result_translation, result_prompt, result_image_list[0]
     
 if __name__ == "__main__":
