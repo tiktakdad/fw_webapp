@@ -194,8 +194,12 @@ class ImageGen:
         #answer = answer.replace('- ', '')
         #result_prompt_list = answer.split('\n')
         result_image_list = []
+        result_prompt = ''
         for result_prompt in result_prompt_list:
-            prompt = "masterpiece, best quality, ultra-detailed, upperbody, 1child, " + result_prompt + ", illustration"
+            result_prompt_splited = result_prompt.split(',') # no use style prompt
+            if  len(result_prompt_splited) >3:
+                result_prompt = result_prompt_splited[0] +  result_prompt_splited[1] +  result_prompt_splited[2]
+            prompt = "masterpiece, best quality, ultra-detailed, upperbody, 1child, storybook illustration, " + result_prompt
             negative_prompt = "((nsfw)), worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
             images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7).images
             result_image_list.append(images[0])
@@ -213,9 +217,8 @@ class ImageGen:
             ).images[0]
             result_image_list.append(upscaled_image)
             '''
-            
             break
-        return result_ocr+'\n'+result_translation, result_prompt_list[0], result_image_list[0]
+        return result_ocr+'\n'+result_translation, result_prompt, result_image_list[0]
     
 if __name__ == "__main__":
     img_gen = ImageGen()
