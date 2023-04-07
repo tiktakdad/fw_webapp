@@ -19,15 +19,15 @@
 		"num_inference_steps":40,
 		"guidance_scale":7
 	},
-	"sample (9)":{
-		"path" : "resource/coloring/sample (9).png",
-		"prompt": "masterpiece, best quality, 8k, ultra-detailed, illustration, cute, 5chick, car, sky, butterfly mountain, tree, flower, house",
+	"sample (27)":{
+		"path" : "resource/coloring/sample (27).png",
+		"prompt": "masterpiece, best quality, 8k, ultra-detailed, 1princess with beautiful detailed face, smile, pink dress, magnificent castle, hill road, blue sky, cloud",
 		"negative prompt": "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature, book",
 		"seed" : 254123115,
 		"size" : [512,512],
-		"strength":0.4,
-		"num_inference_steps":30,
-		"guidance_scale":4
+		"strength":0.5,
+		"num_inference_steps":50,
+		"guidance_scale":7
 	},
 	"sample (22)":{
 		"path" : "resource/coloring/sample (22).png",
