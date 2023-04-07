@@ -203,14 +203,15 @@ class ImageGen:
         
         #im1 = im.crop((left, top, right, bottom))
         result_ocr = self.ocr(split_imgs)
-        #print(result_ocr)
-        result_translation = self.translator.translate(result_ocr)
-        result_prompt_list = self.openai_api.run(result_translation)
-        #sample = "I wore my rain boots to school today, and I thought I'd wear them again after school, but it stopped raining, so it wasn't so good. I hope it rains tomorrow."
-        #result_prompt_list = self.openai_api.run(sample)
-        #answer = '- A digital painting of a school hallway with a student wearing their rain boots, hoping for rain, muted color palette, low lighting, artstation, highly detailed, sharp focus.\n- A moody illustration of a student looking out a window, rain droplets sliding down the glass, with their rain boots by the door, artstation, trending, low angle, sharp focus, high detail, dark color scheme.\n- A whimsical digital portrait of a student sitting in a park with their rain boots on, surrounded by flowers and a rainbow overhead, art by loish and rossdraws, intricate details, pastel color scheme, sharp focus, artstation.\n- An emotional piece of a student standing outside in the sun with their rain boots on, staring up at the clear sky, their disappointment palpable, art by Sam Yang and trending on deviantart, intricate details, sharp lines, glossy finish, digital art.\n- An atmospheric digital painting of a student walking home from school with their rain boots, the sun setting behind them, casting long shadows and a warm glow over everything, artstation, concept art, smooth, sharp focus, warm color palette.'
-        #answer = answer.replace('- ', '')
-        #result_prompt_list = answer.split('\n')
+        if len(result_ocr) > 1:
+            result_translation = self.translator.translate(result_ocr)
+            result_prompt_list = self.openai_api.run(result_translation)
+        else:
+            result_translation = "I wore my rain boots to school today, and I thought I'd wear them again after school, but it stopped raining, so it wasn't so good. I hope it rains tomorrow."
+            #result_prompt_list = self.openai_api.run(sample)
+            answer = '- A digital painting of a school hallway with a student wearing their rain boots, hoping for rain \n- A moody illustration of a student looking out a window, rain droplets sliding down the glass, with their rain boots by the door, artstation, trending, low angle, sharp focus, high detail, dark color scheme.\n- A whimsical digital portrait of a student sitting in a park with their rain boots on, surrounded by flowers and a rainbow overhead, art by loish and rossdraws, intricate details, pastel color scheme, sharp focus, artstation.\n- An emotional piece of a student standing outside in the sun with their rain boots on, staring up at the clear sky, their disappointment palpable, art by Sam Yang and trending on deviantart, intricate details, sharp lines, glossy finish, digital art.\n- An atmospheric digital painting of a student walking home from school with their rain boots, the sun setting behind them, casting long shadows and a warm glow over everything, artstation, concept art, smooth, sharp focus, warm color palette.'
+            answer = answer.replace('- ', '')
+            result_prompt_list = answer.split('\n')
         result_image_list = []
         for result_prompt in result_prompt_list:
             result_prompt_splited = result_prompt.split(',') # no use style prompt
@@ -218,7 +219,9 @@ class ImageGen:
                 result_prompt = result_prompt_splited[0] +  result_prompt_splited[1] +  result_prompt_splited[2]
             prompt = "masterpiece, best quality, ultra-detailed, upperbody, 1child, storybook illustration, " + result_prompt
             negative_prompt = "((nsfw)), worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
+            print('=== start t2i_pipe')
             images = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, width=632, height=408, guidance_scale=7).images
+            print('=== end t2i_pipe')
             result_image_list.append(images[0])
             #low_res_latents = self.t2i_pipe(prompt=prompt,negative_prompt=negative_prompt, generator=self.generator, num_inference_steps=40, guidance_scale=7, output_type="latent").images
             '''
