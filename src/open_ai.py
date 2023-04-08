@@ -30,7 +30,7 @@ class OpenAIAPI:
 
         try:
             self.completion = openai.ChatCompletion.create(
-            request_timeout = 6,
+            request_timeout = 15,
             model="gpt-3.5-turbo",
             messages=[
                     {"role": "system", "content": "You are a helpful assistant."},

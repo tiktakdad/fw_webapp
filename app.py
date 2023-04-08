@@ -30,7 +30,7 @@ def run_app():
     # create gradio
     md = "🐳 Flying Whales"
     app1 = gr.Interface(fn=img_gen.img2img, 
-                inputs=[gr.Image(type="pil"), gr.inputs.Textbox(label="filename")],
+                inputs=[gr.Image(type="pil"), gr.inputs.Textbox(label="sample")],
                 outputs=gr.Image(type="pil").style(width=512, height=512),
                 examples=img2img_json2examplesList(img2img_json_data)
                 #examples=["resource/coloring/sample (1).png", "resource/coloring/sample (2).png"]

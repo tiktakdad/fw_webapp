@@ -83,6 +83,8 @@ class ImageGen:
         self.upscaler.to(device)
 
     def img2img(self, img, filename=None):
+        output_width=img.width
+        output_height=img.height
 
         def read_img2img_json(path):
             # './resource/coloring/coloring.json'
@@ -101,22 +103,28 @@ class ImageGen:
             num_inference_steps = img2img_json_data[filename]['num_inference_steps']
             guidance_scale = img2img_json_data[filename]['guidance_scale']
         else:
-            prompt = "masterpiece, best quality, ultra-detailed, 8k, illustration"
-            negative_prompt = "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
-            seed = 0
-            img_size = [512, 512]
-            strength = 0.3
-            num_inference_steps = 30
-            guidance_scale = 7
+            filename = 'sample (6)'
+            img2img_json_path = './resource/coloring/coloring.json'
+            img2img_json_data = read_img2img_json(img2img_json_path)
+            prompt, negative_prompt, seed = img2img_json_data[filename]['prompt'], \
+                                            img2img_json_data[filename]['negative prompt'], \
+                                            img2img_json_data[filename]['seed']
+            img_size = [output_width, output_height]
+            strength = img2img_json_data[filename]['strength']
+            num_inference_steps = img2img_json_data[filename]['num_inference_steps']
+            guidance_scale = img2img_json_data[filename]['guidance_scale']
+            
 
         self.generator = torch.Generator(device=self.device).manual_seed(seed)
 
         init_image = img
+        
         init_image = init_image.resize(img_size)
+        print(prompt)
+
 
         images = self.i2i_pipe(prompt=prompt, strength=strength, negative_prompt=negative_prompt,
-                               image=init_image, generator=self.generator,
-                               num_inference_steps=num_inference_steps, guidance_scale=guidance_scale).images
+                               image=init_image, generator=self.generator, num_inference_steps=num_inference_steps, guidance_scale=guidance_scale).images
         # low_res_latents = self.i2i_pipe(prompt=prompt, strength = 0.5, negative_prompt=negative_prompt,
         #                          image=init_image, generator=self.generator,
         #                          num_inference_steps=40, guidance_scale=7, output_type="latent").images

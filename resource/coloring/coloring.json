@@ -1,4 +1,15 @@
 {
+	"sample (11)":{
+		"path" : "resource/coloring/sample (11).png",
+		"caption" : "an airplane flying in the sky",
+		"prompt": "masterpiece, best quality, ultra-detailed, 8k, color sketch, $caption,  white background, storybook illustration",
+		"negative prompt": "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature",
+		"seed" : 1206892559,
+		"size" : [512,512],
+		"strength":0.6,
+		"num_inference_steps":40,
+		"guidance_scale":7
+	},
 	"sample (1)":{
 		"path" : "resource/coloring/sample (1).png",
 		"prompt": "masterpiece, best quality, ultra-detailed, 8k, 1princess, smile, storybook illustration",
