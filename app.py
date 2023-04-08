@@ -14,7 +14,7 @@ def img2img_json2examplesList(json_data):
     json_keys = json_data.keys()
     list_filepaths = []
     for filename in json_keys:
-        list_filepaths.append([json_data[filename]['path'], filename])
+        list_filepaths.append([json_data[filename]['path'], json_data[filename]['body'],filename])
     return list_filepaths
 
 def run_app():
@@ -30,7 +30,7 @@ def run_app():
     # create gradio
     md = "🐳 Flying Whales"
     app1 = gr.Interface(fn=img_gen.img2img, 
-                inputs=[gr.Image(type="pil"), gr.inputs.Textbox(label="sample")],
+                inputs=[gr.Image(type="pil"), gr.inputs.Textbox(label="sketch label"), gr.inputs.Textbox(label="sample index")],
                 outputs=gr.Image(type="pil").style(width=512, height=512),
                 examples=img2img_json2examplesList(img2img_json_data)
                 #examples=["resource/coloring/sample (1).png", "resource/coloring/sample (2).png"]

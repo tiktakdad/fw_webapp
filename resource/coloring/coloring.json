@@ -1,18 +1,21 @@
 {
 	"sample (11)":{
 		"path" : "resource/coloring/sample (11).png",
-		"caption" : "an airplane flying in the sky",
-		"prompt": "masterpiece, best quality, ultra-detailed, 8k, color sketch, $caption,  white background, storybook illustration",
+		"header": "masterpiece, best quality, ultra-detailed, 8k, color sketch",
+		"body" : "a fighter plane flying in the sky, white background",
+		"footer": "storybook illustration",
 		"negative prompt": "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature",
 		"seed" : 1206892559,
 		"size" : [512,512],
-		"strength":0.6,
+		"strength":0.52,
 		"num_inference_steps":40,
-		"guidance_scale":7
+		"guidance_scale":9
 	},
 	"sample (1)":{
 		"path" : "resource/coloring/sample (1).png",
-		"prompt": "masterpiece, best quality, ultra-detailed, 8k, 1princess, smile, storybook illustration",
+		"header": "masterpiece, best quality, ultra-detailed, 8k",
+		"body" : "1princess, smile",
+		"footer": "storybook illustration",
 		"negative prompt": "text, nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, , title, logo, signature",
 		"seed" : 3306892559,
 		"size" : [512,784],
@@ -22,7 +25,9 @@
 	},
 	"sample (6)":{
 		"path" : "resource/coloring/sample (6).png",
-		"prompt": "masterpiece, best quality, ultra-detailed, 8k, a cartoon cute 1dinosaur standing, sky, sun, cloud, sea, mountain, land, flower",
+		"header": "masterpiece, best quality, ultra-detailed, 8k",
+		"body" : "a cartoon cute 1dinosaur standing, sky, sun, cloud, sea, mountain, land, flower",
+		"footer": "",
 		"negative prompt": "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature, book",
 		"seed" : 254123115,
 		"size" : [512,512],
@@ -32,7 +37,9 @@
 	},
 	"sample (27)":{
 		"path" : "resource/coloring/sample (27).png",
-		"prompt": "masterpiece, best quality, 8k, ultra-detailed, 1princess with beautiful detailed face, smile, pink dress, magnificent castle, hill road, blue sky, cloud",
+		"header": "masterpiece, best quality, 8k, ultra-detailed",
+		"body" : "1princess with beautiful detailed face, smile, pink dress, magnificent castle, hill road, blue sky, cloud",
+		"footer": "",
 		"negative prompt": "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature, book",
 		"seed" : 254123115,
 		"size" : [512,512],
@@ -42,7 +49,9 @@
 	},
 	"sample (22)":{
 		"path" : "resource/coloring/sample (22).png",
-		"prompt": "masterpiece, best quality, ultra-detailed, 8k, a cartoon of a little prince with cloak, telescope, roses on a planet, colorful stars",
+		"header": "masterpiece, best quality, ultra-detailed, 8k",
+		"body" : "a cartoon of a little prince with cloak, telescope, roses on a planet, colorful stars",
+		"footer": "",
 		"negative prompt": "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
 		,"seed" : 1206892559,
 		"size" : [512,512],
@@ -52,7 +61,9 @@
 	},
 	"sample (23)":{
 		"path" : "resource/coloring/sample (23).png",
-		"prompt": "masterpiece, best quality, ultra-detailed, illustration, cute, 1pirate ship, cloud, sea",
+		"header": "masterpiece, best quality, ultra-detailed, illustration, cute",
+		"body" : "1pirate ship, cloud, sea",
+		"footer": "",
 		"negative prompt": "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature",
 		"seed" : 1206892559,
 		"size" : [512,512],

@@ -82,7 +82,7 @@ class ImageGen:
         self.upscaler = StableDiffusionLatentUpscalePipeline.from_pretrained(model_id, torch_dtype=torch.float16)
         self.upscaler.to(device)
 
-    def img2img(self, img, filename=None):
+    def img2img(self, img, body, filename=None):
         output_width=img.width
         output_height=img.height
 
@@ -95,7 +95,7 @@ class ImageGen:
         if filename != None:
             img2img_json_path = './resource/coloring/coloring.json'
             img2img_json_data = read_img2img_json(img2img_json_path)
-            prompt, negative_prompt, seed = img2img_json_data[filename]['prompt'], \
+            prompt, negative_prompt, seed = img2img_json_data[filename]['header']+', '+ body + ', '+ img2img_json_data[filename]['footer'], \
                                             img2img_json_data[filename]['negative prompt'], \
                                             img2img_json_data[filename]['seed']
             img_size = img2img_json_data[filename]['size']
@@ -106,7 +106,7 @@ class ImageGen:
             filename = 'sample (6)'
             img2img_json_path = './resource/coloring/coloring.json'
             img2img_json_data = read_img2img_json(img2img_json_path)
-            prompt, negative_prompt, seed = img2img_json_data[filename]['prompt'], \
+            prompt, negative_prompt, seed = img2img_json_data[filename]['header']+', '+ body + ', '+ img2img_json_data[filename]['footer'], \
                                             img2img_json_data[filename]['negative prompt'], \
                                             img2img_json_data[filename]['seed']
             img_size = [output_width, output_height]
