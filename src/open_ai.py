@@ -30,7 +30,7 @@ class OpenAIAPI:
 
         try:
             self.completion = openai.ChatCompletion.create(
-            request_timeout = 15,
+            request_timeout = 60,
             model="gpt-3.5-turbo",
             messages=[
                     {"role": "system", "content": "You are a helpful assistant."},
@@ -51,10 +51,8 @@ class OpenAIAPI:
 
 
 if __name__ == "__main__":
-    '''
     api = OpenAIAPI()
     answer = api.run("I wore my rain boots to school today, and I thought I'd wear them again after school, but it stopped raining, so it wasn't so good. I hope it rains tomorrow.")
     print('answer:',answer)
-    '''
-    print(openai.api_key)
+    
     
