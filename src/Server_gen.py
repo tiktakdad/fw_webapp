@@ -65,25 +65,28 @@ class server:
 
             if task_data == 0:
                 result = self.image_gen.img2img(image)
-                result_image = result[0]
+                result_image = result
                 result_image.save("./resource/task_0.jpg")
+                encoded_image = self.image_to_base64("./resource/task_0.jpg")
             elif task_data == 1:
                 result = self.image_gen.img2img_clip(image)
                 result_clip_text = result[0]
                 result_image = result[1]
                 result_image.save("./resource/task_1.jpg")
+                encoded_image = self.image_to_base64("./resource/task_1.jpg")
             else:
                 ocr_trans, prompt, output_image = self.image_gen.text2img(image)
                 print('ocr_trans: ', ocr_trans)
                 print(prompt)
                 output_image.save("./resource/task_2.jpg")
-                #image_path = './resource/diary/diary_sample.png'
                 encoded_image = self.image_to_base64("./resource/task_2.jpg")
-                #print('encoded_image: ',encoded_image, ' len: ', len(encoded_image))
-                encoded_image_length = len(encoded_image)
+                #image_path = './resource/diary/diary_sample.png'
+                
             
 
             
+            #print('encoded_image: ',encoded_image, ' len: ', len(encoded_image))
+            encoded_image_length = len(encoded_image)
             conn.sendall(encoded_image_length.to_bytes(4, 'little'))
             conn.sendall(encoded_image.encode('utf-8'))
 
