@@ -43,7 +43,7 @@ class ImageGen:
         #model_id_or_path = "runwayml/stable-diffusion-v1-5"
         #model_id_or_path = "../model/dosmix/"
         #model_id_or_path = "../model/dump2/"
-        model_id_or_path = "model/dump/"
+        model_id_or_path = "../model/dump2/"
         self.load_model(self.device, model_id_or_path)
         self.generator = torch.Generator(device=self.device).manual_seed(0)
         self.blip_infer = BlipInfer()

@@ -10,11 +10,18 @@ def read_img2img_json(path):
         img2img_json_data = json.load(file)
     return img2img_json_data
 
-def json2examplesList(json_data):
+def coloring_book_json2examplesList(json_data):
     json_keys = json_data.keys()
     list_filepaths = []
     for filename in json_keys:
         list_filepaths.append([json_data[filename]['path'], json_data[filename]['body'],filename])
+    return list_filepaths
+
+def free_sketch_json2examplesList(json_data):
+    json_keys = json_data.keys()
+    list_filepaths = []
+    for filename in json_keys:
+        list_filepaths.append(json_data[filename]['path'])
     return list_filepaths
 
 def run_app():
@@ -35,13 +42,13 @@ def run_app():
     app1 = gr.Interface(fn=img_gen.img2img, 
                 inputs=[gr.Image(type="pil"), gr.inputs.Textbox(label="sketch label"), gr.inputs.Textbox(label="sample index")],
                 outputs=gr.Image(type="pil").style(width=512, height=512),
-                examples=json2examplesList(img2img_json_data)
+                examples=coloring_book_json2examplesList(img2img_json_data)
                 #examples=["resource/coloring/sample (1).png", "resource/coloring/sample (2).png"]
                 )
     app2 = gr.Interface(fn=img_gen.img2img_clip, 
                 inputs=gr.Image(type="pil"),
                 outputs=["text", gr.Image(type="pil").style(width=512, height=512)],
-                examples=json2examplesList(img2img_clip_json_data))
+                examples=free_sketch_json2examplesList(img2img_clip_json_data))
     app3 = gr.Interface(fn=img_gen.text2img, 
                         inputs=gr.Image(type="pil"), 
                         outputs=["text","text", gr.Image(type="pil").style(width=632, height=408)], 
