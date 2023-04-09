@@ -54,7 +54,7 @@ def run_app():
                         outputs=["text","text", gr.Image(type="pil").style(width=632, height=408)], 
                         examples=["resource/diary/sample/diary_sample (5).jpg", "resource/diary/sample/diary_sample (6).jpg"])
     demo = gr.TabbedInterface(title=md, interface_list=[app1, app2, app3], tab_names=["coloring book", "free drawing","diary"])
-    demo.launch(auth=("admin", "FlyingWhales1004"), server_name='0.0.0.0')
+    demo.launch(auth=("admin", "1004"), server_name='0.0.0.0')
     #demo.launch(server_name='0.0.0.0')
 
 
