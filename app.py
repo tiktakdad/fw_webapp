@@ -57,8 +57,8 @@ def run_app():
                         examples=["resource/diary/sample/diary_sample (5).jpg", "resource/diary/sample/diary_sample (6).jpg"])
     
     demo = gr.TabbedInterface(title=md, interface_list=[app1, app2, app3], tab_names=["coloring book", "free drawing","diary"])
-    #demo.launch(auth=("admin", "admin"), server_name='0.0.0.0')
-    demo.launch(server_name='0.0.0.0')
+    demo.launch(auth=("admin", "1004"), server_name='0.0.0.0')
+    #demo.launch(server_name='0.0.0.0')
 
 
 if __name__ == "__main__":
