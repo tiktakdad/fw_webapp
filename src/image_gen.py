@@ -162,10 +162,10 @@ class ImageGen:
         init_image = image_padding(img)
         init_image = init_image.resize((512, 512))
         caption = self.blip_infer.inference(init_image)
-        prompt = "masterpiece, best quality, ultra-detailed, 8k, color sketch, " + caption + ", white background, storybook illustration"
+        prompt = "masterpiece, best quality, ultra-detailed, 8k, color sketch, " + caption + ", simple background, illustration"
         negative_prompt = "nsfw, worst quality, low quality, jpeg artifacts, depth of field, bokeh, blurry, film grain, chromatic aberration, lens flare, greyscale, monochrome, dusty sunbeams, trembling, motion lines, motion blur, emphasis lines, text, title, logo, signature"
         # generator = torch.manual_seed(-1)
-        images = self.i2i_pipe(prompt=prompt, strength=0.6, negative_prompt=negative_prompt, image=init_image,
+        images = self.i2i_pipe(prompt=prompt, strength=0.45, negative_prompt=negative_prompt, image=init_image,
                                generator=self.generator, num_inference_steps=40, guidance_scale=7).images
 
         return caption, images[0]
