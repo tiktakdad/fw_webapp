@@ -64,7 +64,7 @@ class server:
 
 
             if task_data == 0:
-                result = self.image_gen.img2img(image)
+                result = self.image_gen.img2img(image, "a cartoon cute 1dinosaur standing, sky, sun, cloud, sea, mountain, land, flower")
                 result_image = result
                 result_image.save("./resource/task_0.jpg")
                 encoded_image = self.image_to_base64("./resource/task_0.jpg")

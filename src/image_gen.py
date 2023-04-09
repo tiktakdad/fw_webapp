@@ -106,6 +106,7 @@ class ImageGen:
             filename = 'sample (6)'
             img2img_json_path = './resource/coloring/coloring.json'
             img2img_json_data = read_img2img_json(img2img_json_path)
+            body = img2img_json_data[filename]['body']
             prompt, negative_prompt, seed = img2img_json_data[filename]['header']+', '+ body + ', '+ img2img_json_data[filename]['footer'], \
                                             img2img_json_data[filename]['negative prompt'], \
                                             img2img_json_data[filename]['seed']
