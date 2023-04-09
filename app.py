@@ -52,7 +52,7 @@ def run_app():
     app3 = gr.Interface(fn=img_gen.text2img, 
                         inputs=gr.Image(type="pil"), 
                         outputs=["text","text", gr.Image(type="pil").style(width=632, height=408)], 
-                        examples=["resource/diary/sample/diary_sample (1).jpg", "resource/diary/sample/diary_sample (2).jpg", "resource/diary/sample/diary_sample (3).jpg", "resource/diary/sample/diary_sample (4).jpg"])
+                        examples=["resource/diary/sample/diary_sample (5).jpg", "resource/diary/sample/diary_sample (6).jpg"])
     demo = gr.TabbedInterface(title=md, interface_list=[app1, app2, app3], tab_names=["coloring book", "free drawing","diary"])
     #demo.launch(auth=("admin", "admin"), server_name='0.0.0.0')
     demo.launch(server_name='0.0.0.0')
