@@ -104,7 +104,7 @@ class ImageGen:
             num_inference_steps = img2img_json_data[filename]['num_inference_steps']
             guidance_scale = img2img_json_data[filename]['guidance_scale']
         else:
-            filename = 'sample (6)'
+            filename = 'sample (11)'
             img2img_json_path = './resource/coloring/coloring.json'
             img2img_json_data = read_img2img_json(img2img_json_path)
             body = img2img_json_data[filename]['body']
