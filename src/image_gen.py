@@ -92,7 +92,12 @@ class ImageGen:
             with open(path, 'r') as file:
                 img2img_json_data = json.load(file)
             return img2img_json_data
+        
+        if filename == "":
+            filename = 'sample (11)'
+ 
 
+        print(filename)
         if filename != None:
             img2img_json_path = './resource/coloring/coloring.json'
             img2img_json_data = read_img2img_json(img2img_json_path)
